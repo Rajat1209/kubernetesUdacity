@@ -7,39 +7,16 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-
       - setup_remote_docker
-
       - run:
           name: Install Docker CLI
           command: |
             if ! command -v docker >/dev/null; then
               sudo apt-get update && sudo apt-get install -y docker.io
             fi
-            docker --version
-
-      - restore_cache:
-          keys:
-            - v1-deps-{{ checksum "requirements.txt" }}
-            - v1-deps-
-
-      - run:
-          name: Install Python deps (venv)
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            make install
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-deps-{{ checksum "requirements.txt" }}
-
       - run:
           name: Run lint (dockerized hadolint)
-          command: |
-            . venv/bin/activate || true
-            make lint
+          command: make lint
 
 workflows:
   version: 2
