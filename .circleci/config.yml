@@ -3,59 +3,38 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/base:stable
+      - image: python:3.7.3-stretch
     working_directory: ~/repo
     steps:
       - checkout
 
-      # Give us a Docker daemon so `docker run hadolint/hadolint ...` works
-      - setup_remote_docker
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-      # Ensure docker CLI is present
       - run:
-          name: Install Docker CLI
+          name: install dependencies
           command: |
-            if ! command -v docker >/dev/null; then
-              sudo apt-get update && sudo apt-get install -y docker.io
-            fi
-            docker --version
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            # Install hadolint
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
 
-      # Locate Makefile anywhere in the repo (handles your nested layout)
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      # run lint!
       - run:
-          name: Locate Makefile (and Dockerfile)
+          name: run lint
           command: |
-            set -e
-            echo "Repo root: $(pwd)"
-            MF_PATH="$(git ls-files | grep -E '(^|/)[Mm]akefile$' | head -n1 || true)"
-            if [ -z "$MF_PATH" ]; then
-              MF_PATH="$(find . -maxdepth 8 -iname 'Makefile' | head -n1 || true)"
-            fi
-            if [ -z "$MF_PATH" ]; then
-              echo "❌ Makefile not found in repo"
-              find . -maxdepth 3 -type d -print
-              exit 1
-            fi
-            echo "✅ Found Makefile at: $MF_PATH"
-            echo "$(dirname "$MF_PATH")" > .make_dir
-
-            DOCKERFILE_PATH="$(dirname "$MF_PATH")/Dockerfile"
-            if [ ! -f "$DOCKERFILE_PATH" ]; then
-              # try to find a Dockerfile nearby
-              DF_FALLBACK="$(git ls-files | grep -E '(^|/)Dockerfile$' | head -n1 || true)"
-              if [ -n "$DF_FALLBACK" ]; then
-                echo "⚠️ Dockerfile not in Makefile dir; found fallback at: $DF_FALLBACK"
-              else
-                echo "⚠️ Dockerfile not found; your lint target may fail"
-              fi
-            fi
-
-      # Run lint where the Makefile lives
-      - run:
-          name: Run make lint in the Makefile directory
-          command: |
-            cd "$(cat .make_dir)"
-            echo "Running in: $(pwd)"
-            ls -la
+            . venv/bin/activate
             make lint
 
 workflows:
