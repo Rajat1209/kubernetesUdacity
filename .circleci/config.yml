@@ -4,9 +4,7 @@ jobs:
   build:
     docker:
       - image: cimg/base:stable
-
     working_directory: ~/repo
-
     steps:
       - checkout
 
@@ -23,8 +21,8 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            - v1-dependencies-
+            - v1-deps-{{ checksum "requirements.txt" }}
+            - v1-deps-
 
       - run:
           name: Install Python deps (venv)
@@ -36,10 +34,10 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+          key: v1-deps-{{ checksum "requirements.txt" }}
 
       - run:
-          name: Run hadolint via Makefile
+          name: Run lint (dockerized hadolint)
           command: |
             . venv/bin/activate || true
             make lint
