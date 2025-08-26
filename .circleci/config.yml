@@ -4,18 +4,29 @@ jobs:
   build:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/repo
+    working_directory: ~/repo/project-ml-microservice-kubernetes
     steps:
       - checkout
+
       - setup_remote_docker
+
       - run:
           name: Install Docker CLI
           command: |
             if ! command -v docker >/dev/null; then
               sudo apt-get update && sudo apt-get install -y docker.io
             fi
+            docker --version
+
       - run:
-          name: Run lint (dockerized hadolint)
+          name: Show tree & verify Makefile
+          command: |
+            pwd
+            ls -la
+            test -f Makefile || { echo "Makefile not found here"; exit 1; }
+
+      - run:
+          name: Run lint
           command: make lint
 
 workflows:
