@@ -4,12 +4,14 @@ jobs:
   build:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/repo/DevOps_Microservices/project-ml-microservice-kubernetes
+    working_directory: ~/repo
     steps:
       - checkout
 
+      # Give us a Docker daemon so `docker run hadolint/hadolint ...` works
       - setup_remote_docker
 
+      # Ensure docker CLI is present
       - run:
           name: Install Docker CLI
           command: |
@@ -18,16 +20,43 @@ jobs:
             fi
             docker --version
 
+      # Locate Makefile anywhere in the repo (handles your nested layout)
       - run:
-          name: Show tree & verify Makefile
+          name: Locate Makefile (and Dockerfile)
           command: |
-            pwd
-            ls -la
-            test -f Makefile || { echo "Makefile not found here"; exit 1; }
+            set -e
+            echo "Repo root: $(pwd)"
+            MF_PATH="$(git ls-files | grep -E '(^|/)[Mm]akefile$' | head -n1 || true)"
+            if [ -z "$MF_PATH" ]; then
+              MF_PATH="$(find . -maxdepth 8 -iname 'Makefile' | head -n1 || true)"
+            fi
+            if [ -z "$MF_PATH" ]; then
+              echo "❌ Makefile not found in repo"
+              find . -maxdepth 3 -type d -print
+              exit 1
+            fi
+            echo "✅ Found Makefile at: $MF_PATH"
+            echo "$(dirname "$MF_PATH")" > .make_dir
 
+            DOCKERFILE_PATH="$(dirname "$MF_PATH")/Dockerfile"
+            if [ ! -f "$DOCKERFILE_PATH" ]; then
+              # try to find a Dockerfile nearby
+              DF_FALLBACK="$(git ls-files | grep -E '(^|/)Dockerfile$' | head -n1 || true)"
+              if [ -n "$DF_FALLBACK" ]; then
+                echo "⚠️ Dockerfile not in Makefile dir; found fallback at: $DF_FALLBACK"
+              else
+                echo "⚠️ Dockerfile not found; your lint target may fail"
+              fi
+            fi
+
+      # Run lint where the Makefile lives
       - run:
-          name: Run lint
-          command: make lint
+          name: Run make lint in the Makefile directory
+          command: |
+            cd "$(cat .make_dir)"
+            echo "Running in: $(pwd)"
+            ls -la
+            make lint
 
 workflows:
   version: 2
