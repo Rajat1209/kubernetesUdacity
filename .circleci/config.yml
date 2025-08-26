@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/DevOps_Microservices/project-ml-microservice-kubernetes
+    working_directory: DevOps_Microservices/project-ml-microservice-kubernetes
     steps:
       - checkout
 
