@@ -7,11 +7,10 @@ ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1
 # deps first for better caching
 COPY requirements.txt /app/requirements.txt
 
-# 1) pin pip upgrade
-RUN python -m pip install --no-cache-dir --upgrade "pip==24.2"
-
-# 2) install from requirements; keep the ignore (project requires it)
-RUN python -m pip install --no-cache-dir --requirement requirements.txt
+# Pin pip, use --no-cache-dir, and keep the hadolint ignore (as required)
+# hadolint ignore=DL3013
+RUN python -m pip install --no-cache-dir --upgrade "pip==24.2" \
+ && python -m pip install --no-cache-dir --requirement requirements.txt
 
 # app files
 COPY app.py /app/app.py
