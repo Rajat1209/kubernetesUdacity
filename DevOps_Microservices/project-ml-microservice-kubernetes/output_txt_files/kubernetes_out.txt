@@ -1,0 +1,14 @@
+Docker ID and Image: rajat129/house-prediction
+pod "house-prediction" deleted
+pod/house-prediction created
+Listing pods...
+NAME               READY   STATUS    RESTARTS   AGE   IP       NODE     NOMINATED NODE   READINESS GATES
+house-prediction   0/1     Pending   0          0s    <none>   <none>   <none>           <none>
+Waiting for pod to become Ready...
+pod/house-prediction condition met
+NAME               READY   STATUS    RESTARTS   AGE   IP           NODE               NOMINATED NODE   READINESS GATES
+house-prediction   1/1     Running   0          16s   10.244.0.6   hp-control-plane   <none>           <none>
+Forwarding host 8000 -> pod 80 (Ctrl+C to stop)...
+Forwarding from 127.0.0.1:8000 -> 80
+Forwarding from [::1]:8000 -> 80
+Handling connection for 8000

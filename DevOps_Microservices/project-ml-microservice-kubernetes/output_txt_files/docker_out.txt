@@ -1,0 +1,29 @@
+[2025-08-26 11:43:14,797] INFO in app: Model loaded successfully from ./model_data/boston_housing_prediction.joblib
+ * Debugger is active!
+ * Debugger PIN: 871-322-247
+[2025-08-26 11:43:27,316] INFO in app: JSON payload received:
+{
+  "CHAS": {
+    "0": 0
+  },
+  "RM": {
+    "0": 6.575
+  },
+  "TAX": {
+    "0": 296.0
+  },
+  "PTRATIO": {
+    "0": 15.3
+  },
+  "B": {
+    "0": 396.9
+  },
+  "LSTAT": {
+    "0": 4.98
+  }
+}
+[2025-08-26 11:43:27,333] INFO in app: Inference DataFrame:
+   CHAS     RM    TAX  PTRATIO      B  LSTAT
+0   0.0  6.575  296.0     15.3  396.9   4.98
+[2025-08-26 11:43:27,348] INFO in app: Model prediction: [31138.354844673122]
+172.17.0.1 - - [26/Aug/2025 11:43:27] "POST /predict HTTP/1.1" 200 -
