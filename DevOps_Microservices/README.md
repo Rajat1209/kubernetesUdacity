@@ -1,3 +1,5 @@
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/9cHSdMRQSXoAp42Y3KiFaL/QvBDcjThQDRzqSRqxPfjzP/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/9cHSdMRQSXoAp42Y3KiFaL/QvBDcjThQDRzqSRqxPfjzP/tree/main)
+
 ## Cloud DevOps ND - C4- Microservices at Scale using AWS & Kubernetes - Supporting Material and Project Starter
 
 This repository is associated with Cloud DevOps ND - Course 04 - Microservices at Scale using AWS & Kubernetes. In here, you'll find:
