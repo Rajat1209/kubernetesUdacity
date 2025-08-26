@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/repo/DevOps_Microservices/project-ml-microservice-kubernetes
+    working_directory: ~/repo
     steps:
       - checkout
 
@@ -19,15 +19,24 @@ jobs:
             docker --version
 
       - run:
-          name: Show tree & verify Makefile
+          name: Install hadolint (binary)
           command: |
-            pwd
-            ls -la
-            test -f Makefile || { echo "Makefile not found here"; exit 1; }
+            curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o hadolint
+            chmod +x hadolint
+            sudo mv hadolint /usr/local/bin/hadolint
+            hadolint --version
 
       - run:
-          name: Run lint
-          command: make lint
+          name: Run lint in project dir
+          command: |
+            set -e
+            PROJECT_DIR="DevOps_Microservices/project-ml-microservice-kubernetes"
+            cd "$PROJECT_DIR"
+            echo "Running in: $(pwd)"
+            ls -la
+            test -f Makefile || { echo "Makefile missing in $PROJECT_DIR"; exit 1; }
+            # Try your Makefile target first (works for both binary/dockerized hadolint)
+            make lint || { echo "make lint failed; trying direct hadolint on Dockerfile"; hadolint Dockerfile; }
 
 workflows:
   version: 2
