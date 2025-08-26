@@ -1,16 +1,21 @@
 FROM python:3.10-slim
-
 WORKDIR /app
 
+# keep builds small and quiet
 ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1
 
-# Copy source, model, requirements
-COPY app.py /app/app.py
-COPY model_data /app/model_data
+# deps first for better caching
 COPY requirements.txt /app/requirements.txt
 
-# Install deps
-RUN python -m pip install --no-cache-dir --upgrade pip && python -m pip install --no-cache-dir -r requirements.txt
+# 1) pin pip upgrade
+RUN python -m pip install --no-cache-dir --upgrade "pip==24.2"
+
+# 2) install from requirements; keep the ignore (project requires it)
+RUN python -m pip install --no-cache-dir --requirement requirements.txt
+
+# app files
+COPY app.py /app/app.py
+COPY model_data /app/model_data
 
 EXPOSE 80
 CMD ["python", "app.py"]
